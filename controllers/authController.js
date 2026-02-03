@@ -2,19 +2,16 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 const generateToken = (id, role, subRole) => {
-  return jwt.sign({ id, role, subRole }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
-  });
+  return jwt.sign({ id, role, subRole }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
-
-const signupUser = async (req, res) => {
+ 
+const createUserByAdmin = async (req, res) => {
   const { fullName, email, password, role, subRole } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
-
     if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: 'User with this email already exists' });
     }
 
     const user = await User.create({
@@ -26,21 +23,12 @@ const signupUser = async (req, res) => {
     });
 
     if (user) {
-      res.status(201).json({
-        _id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role,
-        subRole: user.subRole,
-        token: generateToken(user._id, user.role, user.subRole),
-      });
+      res.status(201).json({ _id: user._id, fullName: user.fullName, email: user.email });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Server Error', error: error.message });
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
@@ -49,7 +37,6 @@ const loginUser = async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-
     if (user && (await user.matchPassword(password))) {
       res.json({
         _id: user._id,
@@ -63,10 +50,8 @@ const loginUser = async (req, res) => {
       res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Server Error', error: error.message });
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
-
-module.exports = { signupUser, loginUser };
+ 
+module.exports = { createUserByAdmin, loginUser };
