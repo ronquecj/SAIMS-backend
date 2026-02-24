@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { getMinutes, createMinute } = require('../controllers/minuteController');
-const { protect, authorizeSubRoles } = require('../middleware/authMiddleware');
+const { getMinutes, createMinute, reviewMinute } = require('../controllers/minuteController');
+const { protect, authorizeRoles, authorizeSubRoles } = require('../middleware/authMiddleware');
  
-router.use(protect, authorizeSubRoles('Secretary'));
-
-router.get('/', getMinutes);
-router.post('/', createMinute);
+router.get('/', protect, getMinutes);
+ 
+router.post('/', protect, authorizeSubRoles('Secretary'), createMinute);
+ 
+router.put('/:id/review', protect, authorizeRoles('Admin'), reviewMinute);
 
 module.exports = router;

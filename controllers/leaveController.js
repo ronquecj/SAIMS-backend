@@ -2,27 +2,13 @@ const LeaveRequest = require('../models/LeaveRequest');
 const User = require('../models/User');
  
 const createLeaveRequest = async (req, res) => {
-  const { reason } = req.body;
-
-  if (req.user.role !== 'Student Assistant') {
-    return res.status(403).json({ message: 'Only Student Assistants can file leave requests.' });
-  }
-
-  if (!reason) {
-    return res.status(400).json({ message: 'Reason for leave is required.' });
-  }
-
-  try {
-    const leaveRequest = await LeaveRequest.create({
-      studentAssistant: req.user._id,
-      reason,
-      status: 'Pending',
-    });
-
-    res.status(201).json(leaveRequest);
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
-  }
+    const { reason, date, hoursRequested, documentUrl } = req.body;
+    try {
+        const reqDoc = await LeaveRequest.create({
+            studentAssistant: req.user._id, reason, date, hoursRequested, documentUrl
+        });
+        res.status(201).json(reqDoc);
+    } catch (error) { res.status(500).json({ message: error.message }); }
 };
  
 const getMyLeaveHistory = async (req, res) => {
@@ -49,36 +35,23 @@ const getAllLeaveRequests = async (req, res) => {
 };
  
 const updateLeaveStatus = async (req, res) => {
-  const { status, denialReason } = req.body;
-  
-  if (!['Approved', 'Denied'].includes(status)) {
-    return res.status(400).json({ message: 'Invalid status update value.' });
-  }
+    const { status, comment } = req.body;
+    try {
+        const request = await LeaveRequest.findById(req.params.id);
+        request.status = status;
+        request.comment = comment;
+        await request.save();
 
-  try {
-    const request = await LeaveRequest.findById(req.params.id);
-
-    if (!request) {
-      return res.status(404).json({ message: 'Leave request not found.' });
-    }
-     
-    request.status = status;
-    request.denialReason = status === 'Denied' ? denialReason : undefined;
-    
-    const updatedRequest = await request.save();
-     
-    if (status === 'Approved') { 
-        await User.findByIdAndUpdate(
-            request.studentAssistant, 
-            { $inc: { leaveBalance: -1 } }
-        );
-    }
-
-    res.json(updatedRequest);
-
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
-  }
+        const user = await User.findById(request.studentAssistant);
+        if (status === 'Approved') {
+            user.leaveBalance -= request.hoursRequested;
+            user.notifications.push({ message: `Your leave request for ${request.hoursRequested} hours on ${new Date(request.date).toLocaleDateString()} was Approved.` });
+        } else {
+            user.notifications.push({ message: `Your leave request for ${new Date(request.date).toLocaleDateString()} was Denied. Reason: ${comment}` });
+        }
+        await user.save();
+        res.json(request);
+    } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
 module.exports = {

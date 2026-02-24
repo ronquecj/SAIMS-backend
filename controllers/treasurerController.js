@@ -1,100 +1,58 @@
+const Allowance = require('../models/Allowance');
+const RenderHour = require('../models/RenderHour');
 const User = require('../models/User');
- 
-const MIN_HOURS_FOR_ELIGIBILITY = 40;
- 
-const getStudentsForVerification = async (req, res) => {
-  try {
-    const students = await User.find({ role: 'Student Assistant' }).select('fullName email renderHours isEligibleForAllowance');
-     
-    const studentsWithEligibility = students.map(student => ({
-      _id: student._id,
-      fullName: student.fullName,
-      email: student.email,
-      renderHours: student.renderHours,
-      isEligibleForAllowance: student.isEligibleForAllowance,  
-      metMinimumHours: student.renderHours >= MIN_HOURS_FOR_ELIGIBILITY, 
-    }));
-    
-    res.json(studentsWithEligibility);
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
-  }
+
+const getVerificationList = async (req, res) => {
+    const { month, cutoffPeriod } = req.query;
+    try { 
+        const renderRecords = await RenderHour.find({ month, cutoffPeriod }).populate('studentAssistant', 'fullName office'); 
+        const allowanceRecords = await Allowance.find({ month, cutoffPeriod });
+        
+        const data = renderRecords.map(render => {
+            const allowance = allowanceRecords.find(a => a.studentAssistant.toString() === render.studentAssistant._id.toString());
+            return {
+                student: render.studentAssistant,
+                hours: render.hours,
+                isEligible: allowance ? allowance.isEligible : false,
+                allowanceId: allowance ? allowance._id : null
+            };
+        });
+        res.json(data);
+    } catch (error) { res.status(500).json({ message: error.message }); }
 };
- 
-const updateAllowanceEligibility = async (req, res) => {
-  const { isEligible } = req.body;
-  const { studentId } = req.params;
 
-  if (typeof isEligible !== 'boolean') {
-    return res.status(400).json({ message: 'Eligibility status (boolean) is required.' });
-  }
-
-  try {
-    const student = await User.findById(studentId);
-    
-    if (!student || student.role !== 'Student Assistant') {
-      return res.status(404).json({ message: 'Student Assistant not found.' });
-    }
-    
-    student.isEligibleForAllowance = isEligible;
-    await student.save();
-
-    res.json({ 
-        message: 'Eligibility status updated successfully', 
-        fullName: student.fullName, 
-        isEligible: student.isEligibleForAllowance 
-    });
-
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
-  }
-};
- 
-const getAllowanceHistory = async (req, res) => {
-  try {
-    const students = await User.find({ role: 'Student Assistant' }).select('fullName allowanceHistory');
-    res.json(students);
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
-  }
-};
- 
-const recordPayment = async (req, res) => {
-  const { cutoffDate, amount, status } = req.body;  
-  const { studentId } = req.params;
-  
-  if (!cutoffDate || !amount || !status) {
-    return res.status(400).json({ message: 'Cutoff date, amount, and status are required.' });
-  }
-
-  try {
-    const student = await User.findByIdAndUpdate(
-        studentId,
-        {
-            $push: {
-                allowanceHistory: {
-                    cutoffDate: new Date(cutoffDate),
-                    amount: Number(amount),
-                    status,
-                }
+const saveVerification = async (req, res) => {
+    const { month, cutoffPeriod, records } = req.body;
+    try {
+        for (let rec of records) {
+            await Allowance.findOneAndUpdate(
+                { month, cutoffPeriod, studentAssistant: rec.studentAssistant },
+                { isEligible: rec.isEligible, status: 'Pending' },
+                { upsert: true }
+            );
+            if(rec.isEligible) {
+                await User.findByIdAndUpdate(rec.studentAssistant, {
+                    $push: { notifications: { message: `You are marked Eligible for allowance for ${month} - ${cutoffPeriod}.` } }
+                });
             }
-        },
-        { new: true, select: 'fullName allowanceHistory' }
-    );
-
-    if (!student) {
-      return res.status(404).json({ message: 'Student Assistant not found.' });
-    }
-
-    res.json(student);
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
-  }
+        }
+        res.json({ message: 'Verification saved' });
+    } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
-module.exports = {
-  getStudentsForVerification,
-  updateAllowanceEligibility,
-  getAllowanceHistory,
-  recordPayment,
+const getHistoryList = async (req, res) => {
+    const { month, cutoffPeriod } = req.query;
+    try {
+        const records = await Allowance.find({ month, cutoffPeriod }).populate('studentAssistant', 'fullName');
+        res.json(records);
+    } catch (error) { res.status(500).json({ message: error.message }); }
 };
+
+const updateHistoryStatus = async (req, res) => {
+    const { allowanceId, status } = req.body;
+    try {
+        await Allowance.findByIdAndUpdate(allowanceId, { status });
+        res.json({ message: 'Status updated' });
+    } catch (error) { res.status(500).json({ message: error.message }); }
+};
+module.exports = { getVerificationList, saveVerification, getHistoryList, updateHistoryStatus };

@@ -1,18 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getStudentsForVerification,
-  updateAllowanceEligibility,
-  getAllowanceHistory,
-  recordPayment,
+  getVerificationList,
+  saveVerification,
+  getHistoryList,
+  updateHistoryStatus
 } = require('../controllers/treasurerController');
 const { protect, authorizeSubRoles } = require('../middleware/authMiddleware');
  
 router.use(protect, authorizeSubRoles('Treasurer'));
-
-router.get('/verification', getStudentsForVerification);
-router.put('/verification/:studentId', updateAllowanceEligibility);
-router.get('/history', getAllowanceHistory);
-router.post('/record-payment/:studentId', recordPayment);
+ 
+router.get('/verification', getVerificationList);
+ 
+router.post('/verification', saveVerification);
+ 
+router.get('/history', getHistoryList);
+ 
+router.put('/history/status', updateHistoryStatus);
 
 module.exports = router;

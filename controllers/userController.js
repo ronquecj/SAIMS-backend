@@ -93,10 +93,38 @@ const getUserById = async (req, res) => {
   }
 };
 
+// --- NEW FUNCTIONS FOR PROFILE & NOTIFICATIONS ---
+
+const updateProfile = async (req, res) => {
+  try {
+      const user = await User.findById(req.user._id).select('-password');
+      if (req.body.profilePicture) {
+          user.profilePicture = req.body.profilePicture;
+      }
+      await user.save();
+      res.json(user);
+  } catch (error) { 
+      res.status(500).json({ message: error.message }); 
+  }
+};
+
+const readNotifications = async (req, res) => {
+  try {
+      const user = await User.findById(req.user._id).select('-password');
+      user.notifications.forEach(n => n.isRead = true);
+      await user.save();
+      res.json(user.notifications);
+  } catch (error) { 
+      res.status(500).json({ message: error.message }); 
+  }
+};
+
 module.exports = {
   getStudentAssistants,
   getFacultyAndAdmin,
   assignFaculty,
   updateRenderHours,
   getUserById,
+  updateProfile,
+  readNotifications
 };
