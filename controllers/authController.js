@@ -6,7 +6,7 @@ const generateToken = (id, role, subRole) => {
 };
  
 const createUserByAdmin = async (req, res) => {
-  const { fullName, email, password, role, subRole } = req.body;
+  const { fullName, email, password, role, subRole, office } = req.body;  
 
   try {
     const userExists = await User.findOne({ email });
@@ -20,10 +20,11 @@ const createUserByAdmin = async (req, res) => {
       password,
       role,
       subRole: role === 'Student Assistant' ? subRole : 'None',
+      office: office || 'Unassigned', 
     });
 
     if (user) {
-      res.status(201).json({ _id: user._id, fullName: user.fullName, email: user.email });
+      res.status(201).json({ _id: user._id, fullName: user.fullName, email: user.email, office: user.office });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
     }
@@ -43,7 +44,10 @@ const loginUser = async (req, res) => {
         fullName: user.fullName,
         email: user.email,
         role: user.role,
-        subRole: user.subRole,
+        subRole: user.subRole, 
+        office: user.office || 'Unassigned', 
+        profilePicture: user.profilePicture || '', 
+        leaveBalance: user.leaveBalance,
         token: generateToken(user._id, user.role, user.subRole),
       });
     } else {

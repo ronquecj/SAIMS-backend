@@ -19,23 +19,25 @@ const getFacultyAndAdmin = async (req, res) => {
 };
  
 const assignFaculty = async (req, res) => {
-  const { studentId, facultyId } = req.body;
+  const { studentId, facultyId, office } = req.body;  
 
   try {
     const faculty = await User.findById(facultyId);
-    if (!faculty || faculty.role === 'Student Assistant') {
-      return res.status(404).json({ message: 'Invalid Faculty/Staff ID' });
-    }
-
     const student = await User.findById(studentId);
-    if (!student || student.role !== 'Student Assistant') {
-      return res.status(404).json({ message: 'Invalid Student Assistant ID' });
-    }
+
+    if (!faculty || !student) return res.status(404).json({ message: 'User not found' });
 
     student.assignedFaculty = facultyId;
+    if (office) student.office = office; 
+    
     await student.save();
 
-    res.json({ message: 'Assignment successful', student: student.fullName, faculty: faculty.fullName });
+    res.json({ 
+        message: 'Assignment successful', 
+        student: student.fullName, 
+        faculty: faculty.fullName, 
+        office: student.office 
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
