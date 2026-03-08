@@ -24,8 +24,8 @@ const getAllLeaveRequests = async (req, res) => {
   try { 
     const filter = req.query.status ? { status: req.query.status } : {};
      
-    const requests = await LeaveRequest.find(filter)
-      .populate('studentAssistant', 'fullName email') 
+    const requests = await LeaveRequest.find(filter) 
+      .populate('studentAssistant', 'fullName email leaveBalance') 
       .sort({ createdAt: -1 });
 
     res.json(requests);

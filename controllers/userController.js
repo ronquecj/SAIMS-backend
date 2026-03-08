@@ -93,21 +93,19 @@ const getUserById = async (req, res) => {
     }
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
-};
-
-// --- NEW FUNCTIONS FOR PROFILE & NOTIFICATIONS ---
+}; 
 
 const updateProfile = async (req, res) => {
   try {
       const user = await User.findById(req.user._id).select('-password');
-      if (req.body.profilePicture) {
-          user.profilePicture = req.body.profilePicture;
-      }
+      if (req.body.profilePicture) user.profilePicture = req.body.profilePicture;
+      if (req.body.biodata) user.biodata = req.body.biodata;
+      if (req.body.department) user.department = req.body.department;
+      if (req.body.position) user.position = req.body.position;
+      if (req.body.fullName) user.fullName = req.body.fullName;
       await user.save();
       res.json(user);
-  } catch (error) { 
-      res.status(500).json({ message: error.message }); 
-  }
+  } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
 const readNotifications = async (req, res) => {
