@@ -21,7 +21,7 @@ router.get('/faculty-and-admin', protect, authorizeRoles('Admin'), getFacultyAnd
 router.put('/assign-faculty', protect, authorizeRoles('Admin'), assignFaculty);
 router.put('/update-hours/:studentId', protect, authorizeSubRoles('Timekeeper'), updateRenderHours);
  
-router.put('/profile', protect, updateProfile);
+router.put('/profile', protect, authorizeRoles('Admin', 'Faculty', 'Student Assistant', 'EOSA'), updateProfile);
 router.put('/notifications/read', protect, readNotifications);
 
 router.get('/profile', protect, (req, res) => { 
