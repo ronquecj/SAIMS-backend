@@ -47,7 +47,16 @@ const importData = async () => {
       { fullName: 'Jose Rizal', email: 'jose.rizal@saims.com', password: await hashPw('password123'), role: 'Student Assistant', subRole: 'None', office: 'Library', renderHours: 35, leaveBalance: 25 },
       { fullName: 'Gabriela Silang', email: 'gabriela.silang@saims.com', password: await hashPw('password123'), role: 'Student Assistant', subRole: 'None', office: 'IT Department', renderHours: 60, leaveBalance: 25 },
        
-      { fullName: 'Apolinario Mabini', email: 'apolinario@saims.com', password: await hashPw('password123'), role: 'EOSA', subRole: 'None', office: 'Adviser Office' }
+      { fullName: 'Apolinario Mabini', email: 'apolinario@saims.com', password: await hashPw('password123'), role: 'EOSA', subRole: 'None', office: 'Adviser Office' },
+      { 
+          fullName: 'Juan Inactive', 
+          email: 'inactive@saims.com', 
+          password: await hashPw('password123'), 
+          role: 'Student Assistant', 
+          subRole: 'None', 
+          office: 'N/A', 
+          isActive: false
+      },
     ];
 
     const createdUsers = await User.insertMany(usersData);

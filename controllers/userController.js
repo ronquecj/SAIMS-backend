@@ -19,25 +19,19 @@ const getFacultyAndAdmin = async (req, res) => {
 };
  
 const assignFaculty = async (req, res) => {
-  const { studentId, facultyId, office } = req.body;  
+  const { studentId, facultyId, office } = req.body;
 
   try {
-    const faculty = await User.findById(facultyId);
     const student = await User.findById(studentId);
-
-    if (!faculty || !student) return res.status(404).json({ message: 'User not found' });
+     
+    if (student.isActive === false) {
+        return res.status(400).json({ message: 'Cannot assign an inactive Student Assistant.' });
+    } 
 
     student.assignedFaculty = facultyId;
-    if (office) student.office = office; 
-    
+    if (office) student.office = office;
     await student.save();
-
-    res.json({ 
-        message: 'Assignment successful', 
-        student: student.fullName, 
-        faculty: faculty.fullName, 
-        office: student.office 
-    });
+    res.json({ message: 'Assignment successful' });
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
@@ -119,6 +113,25 @@ const readNotifications = async (req, res) => {
   }
 };
 
+const deleteUser = async (req, res) => {
+  try {
+    const userToDelete = await User.findById(req.params.id);
+    
+    if (!userToDelete) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+ 
+    if (userToDelete._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({ message: 'Cannot delete your own administrator account' });
+    }
+
+    await User.deleteOne({ _id: req.params.id });
+    res.json({ message: `Account for ${userToDelete.fullName} deleted successfully.` });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
 module.exports = {
   getStudentAssistants,
   getFacultyAndAdmin,
@@ -126,5 +139,6 @@ module.exports = {
   updateRenderHours,
   getUserById,
   updateProfile,
-  readNotifications
+  readNotifications,
+  deleteUser
 };

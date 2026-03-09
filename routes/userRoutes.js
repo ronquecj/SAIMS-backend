@@ -8,10 +8,12 @@ const {
   updateRenderHours, 
   getUserById,
   updateProfile,   
-  readNotifications
+readNotifications,
+  deleteUser
 } = require('../controllers/userController'); 
 const Offense = require('../models/Offense');
 const { protect, authorizeRoles, authorizeSubRoles } = require('../middleware/authMiddleware');
+const User = require('../models/User');
  
 router.post('/create', protect, authorizeRoles('Admin'), createUserByAdmin);
 router.get('/students', protect, authorizeRoles('Admin', 'Faculty', 'Student Assistant'), getStudentAssistants);
@@ -38,5 +40,13 @@ router.get('/my-offenses', protect, async (req, res) => {
 });
 
 router.get('/:id', protect, getUserById);
+router.delete('/:id', protect, authorizeRoles('Admin'), deleteUser);
+
+router.put('/status/:id', protect, authorizeRoles('Admin'), async (req, res) => {
+    const user = await User.findById(req.params.id);
+    user.isActive = req.body.isActive;
+    await user.save();
+    res.json({ message: 'Status updated' });
+});
 
 module.exports = router;

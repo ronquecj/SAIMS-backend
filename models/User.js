@@ -26,7 +26,8 @@ const userSchema = new mongoose.Schema({
         maritalStatus: { type: String, default: '' }, religion: { type: String, default: '' }, languages: { type: String, default: '' },
         hobbies: { type: String, default: '' }, bloodGroup: { type: String, default: '' }, siblings: { type: String, default: '' },
         address: { type: String, default: '' }
-    }
+    },
+    isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {
