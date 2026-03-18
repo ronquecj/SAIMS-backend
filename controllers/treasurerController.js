@@ -5,16 +5,20 @@ const User = require('../models/User');
 const getVerificationList = async (req, res) => {
     const { month, cutoffPeriod } = req.query;
     try { 
-        const renderRecords = await RenderHour.find({ month, cutoffPeriod }).populate('studentAssistant', 'fullName office'); 
+        const students = await User.find({ role: 'Student Assistant', isActive: true }).select('fullName office');
+        const renderRecords = await RenderHour.find({ month, cutoffPeriod }); 
         const allowanceRecords = await Allowance.find({ month, cutoffPeriod });
         
-        const data = renderRecords.map(render => {
-            const allowance = allowanceRecords.find(a => a.studentAssistant.toString() === render.studentAssistant._id.toString());
+        const data = students.map(student => {
+            const render = renderRecords.find(r => r.studentAssistant.toString() === student._id.toString());
+            const allowance = allowanceRecords.find(a => a.studentAssistant.toString() === student._id.toString());
             return {
-                student: render.studentAssistant,
-                hours: render.hours,
+                student: student,
+                hours: render ? render.hours : 0,
+                minutes: render ? render.minutes : 0,
                 isEligible: allowance ? allowance.isEligible : false,
-                allowanceId: allowance ? allowance._id : null
+                allowanceId: allowance ? allowance._id : null,
+                documentUrl: allowance ? allowance.documentUrl : null
             };
         });
         res.json(data);
@@ -27,13 +31,20 @@ const saveVerification = async (req, res) => {
         for (let rec of records) {
             await Allowance.findOneAndUpdate(
                 { month, cutoffPeriod, studentAssistant: rec.studentAssistant },
-                { isEligible: rec.isEligible, status: 'Pending' },
+                { isEligible: rec.isEligible, status: 'Pending', documentUrl: rec.documentUrl },
                 { upsert: true }
             );
-            if(rec.isEligible) {
-                await User.findByIdAndUpdate(rec.studentAssistant, {
+            
+            if (rec.isEligible) {
+                const studentUser = await User.findById(rec.studentAssistant);
+                let updates = {
                     $push: { notifications: { message: `You are marked Eligible for allowance for ${month} - ${cutoffPeriod}.` } }
-                });
+                };
+                 
+                if (studentUser.leaveBalance < 0) {
+                    updates.$set = { leaveBalance: 0 };
+                }
+                await User.findByIdAndUpdate(rec.studentAssistant, updates);
             }
         }
         res.json({ message: 'Verification saved' });

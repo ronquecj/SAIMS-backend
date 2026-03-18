@@ -27,8 +27,19 @@ const saveAttendance = async (req, res) => {
 const getRenderHours = async (req, res) => {
     const { month, cutoffPeriod } = req.query;
     try {
-        const records = await RenderHour.find({ month, cutoffPeriod }).populate('studentAssistant', 'fullName office profilePicture');
-        res.json(records);
+        const students = await User.find({ role: 'Student Assistant', isActive: true }).select('fullName office profilePicture');
+        const records = await RenderHour.find({ month, cutoffPeriod });
+        
+        const result = students.map(sa => {
+            const record = records.find(r => r.studentAssistant.toString() === sa._id.toString());
+            return {
+                _id: record ? record._id : sa._id,
+                studentAssistant: sa,
+                hours: record ? record.hours : 0,
+                minutes: record ? record.minutes : 0
+            };
+        });
+        res.json(result);
     } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
@@ -38,7 +49,7 @@ const saveRenderHours = async (req, res) => {
         for (let record of records) {
             await RenderHour.findOneAndUpdate(
                 { month, cutoffPeriod, studentAssistant: record.studentAssistant },
-                { hours: record.hours },
+                { hours: record.hours, minutes: record.minutes || 0 },
                 { upsert: true, new: true }
             );
         }

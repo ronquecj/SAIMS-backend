@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema({
         address: { type: String, default: '' }
     },
     isActive: { type: Boolean, default: true },
+    deactivationReason: { type: String, enum:['Graduated', 'Terminated', 'Resigned', 'None'], default: 'None' },
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

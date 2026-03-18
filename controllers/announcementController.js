@@ -3,7 +3,16 @@ const User = require('../models/User');
  
 const getAnnouncements = async (req, res) => {
   try {
-    const announcements = await Announcement.find({}).sort({ createdAt: -1 });
+    let filter = {};
+    if (req.user.role === 'Faculty') {
+        filter = { audience: { $in: ['All', 'Faculty'] } };
+    } else if (req.user.role === 'EOSA') {
+        filter = { audience: { $in:['All', 'EOSA'] } };
+    } else if (req.user.role === 'Student Assistant') {
+        filter = { audience: { $in: ['All', 'Student Assistants'] } };
+    } 
+
+    const announcements = await Announcement.find(filter).sort({ createdAt: -1 });
     res.json(announcements);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });

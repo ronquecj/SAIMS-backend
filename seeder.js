@@ -55,7 +55,8 @@ const importData = async () => {
           role: 'Student Assistant', 
           subRole: 'None', 
           office: 'N/A', 
-          isActive: false
+          isActive: false,
+          deactivationReason: 'Resigned'
       },
     ];
 
@@ -93,15 +94,15 @@ const importData = async () => {
     ]);
  
     await RenderHour.insertMany([
-        { month: 'February', cutoffPeriod: '1st Cutoff', studentAssistant: pres._id, hours: 45 },
-        { month: 'February', cutoffPeriod: '1st Cutoff', studentAssistant: rizal._id, hours: 35 },
-        { month: 'February', cutoffPeriod: '1st Cutoff', studentAssistant: silang._id, hours: 60 }
+        { month: 'February', cutoffPeriod: '1st Cutoff', studentAssistant: pres._id, hours: 45, minutes: 30 },
+        { month: 'February', cutoffPeriod: '1st Cutoff', studentAssistant: rizal._id, hours: 35, minutes: 0 },
+        { month: 'February', cutoffPeriod: '1st Cutoff', studentAssistant: silang._id, hours: 60, minutes: 15 }
     ]);
 
     await Allowance.insertMany([
-        { month: 'February', cutoffPeriod: '1st Cutoff', studentAssistant: pres._id, isEligible: true, status: 'Received' },
+        { month: 'February', cutoffPeriod: '1st Cutoff', studentAssistant: pres._id, isEligible: true, status: 'Received', documentUrl: '/uploads/sample-render.pdf' },
         { month: 'February', cutoffPeriod: '1st Cutoff', studentAssistant: rizal._id, isEligible: false, status: 'Pending' },
-        { month: 'February', cutoffPeriod: '1st Cutoff', studentAssistant: silang._id, isEligible: true, status: 'Pending' }
+        { month: 'February', cutoffPeriod: '1st Cutoff', studentAssistant: silang._id, isEligible: true, status: 'Pending', documentUrl: '/uploads/sample-render.pdf' }
     ]);
   
     await Offense.insertMany([

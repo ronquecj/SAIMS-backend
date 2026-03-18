@@ -38,6 +38,11 @@ const updateLeaveStatus = async (req, res) => {
     const { status, comment } = req.body;
     try {
         const request = await LeaveRequest.findById(req.params.id);
+         
+        if (request.status !== 'Pending') {
+            return res.status(400).json({ message: 'This request has already been processed.' });
+        }
+
         request.status = status;
         request.comment = comment;
         await request.save();

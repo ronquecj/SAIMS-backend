@@ -45,6 +45,9 @@ router.delete('/:id', protect, authorizeRoles('Admin'), deleteUser);
 router.put('/status/:id', protect, authorizeRoles('Admin'), async (req, res) => {
     const user = await User.findById(req.params.id);
     user.isActive = req.body.isActive;
+    if (req.body.reason !== undefined) {
+        user.deactivationReason = req.body.reason;
+    }
     await user.save();
     res.json({ message: 'Status updated' });
 });
