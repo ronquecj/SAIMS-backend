@@ -26,8 +26,8 @@ const saveAttendance = async (req, res) => {
 
 const getRenderHours = async (req, res) => {
     const { month, cutoffPeriod } = req.query;
-    try {
-        const students = await User.find({ role: 'Student Assistant', isActive: true }).select('fullName office profilePicture');
+    try { 
+        const students = await User.find({ role: { $in: ['Student Assistant', 'EOSA'] }, isActive: true }).select('fullName office profilePicture');
         const records = await RenderHour.find({ month, cutoffPeriod });
         
         const result = students.map(sa => {
@@ -56,4 +56,5 @@ const saveRenderHours = async (req, res) => {
         res.json({ message: 'Render hours saved successfully' });
     } catch (error) { res.status(500).json({ message: error.message }); }
 };
+
 module.exports = { getRenderHours, saveRenderHours, getAttendance, saveAttendance };

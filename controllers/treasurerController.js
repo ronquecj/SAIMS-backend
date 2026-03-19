@@ -4,8 +4,8 @@ const User = require('../models/User');
 
 const getVerificationList = async (req, res) => {
     const { month, cutoffPeriod } = req.query;
-    try { 
-        const students = await User.find({ role: 'Student Assistant', isActive: true }).select('fullName office');
+    try {  
+        const students = await User.find({ role: { $in: ['Student Assistant', 'EOSA'] }, isActive: true }).select('fullName office');
         const renderRecords = await RenderHour.find({ month, cutoffPeriod }); 
         const allowanceRecords = await Allowance.find({ month, cutoffPeriod });
         
@@ -40,7 +40,7 @@ const saveVerification = async (req, res) => {
                 let updates = {
                     $push: { notifications: { message: `You are marked Eligible for allowance for ${month} - ${cutoffPeriod}.` } }
                 };
-                 
+                
                 if (studentUser.leaveBalance < 0) {
                     updates.$set = { leaveBalance: 0 };
                 }

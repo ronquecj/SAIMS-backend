@@ -8,7 +8,7 @@ const {
   updateRenderHours, 
   getUserById,
   updateProfile,   
-readNotifications,
+  readNotifications,
   deleteUser
 } = require('../controllers/userController'); 
 const Offense = require('../models/Offense');
@@ -16,7 +16,9 @@ const { protect, authorizeRoles, authorizeSubRoles } = require('../middleware/au
 const User = require('../models/User');
  
 router.post('/create', protect, authorizeRoles('Admin'), createUserByAdmin);
-router.get('/students', protect, authorizeRoles('Admin', 'Faculty', 'Student Assistant'), getStudentAssistants);
+ 
+router.get('/students', protect, authorizeRoles('Admin', 'Faculty', 'Student Assistant', 'EOSA'), getStudentAssistants);
+
 router.get('/faculty-and-admin', protect, authorizeRoles('Admin'), getFacultyAndAdmin);
 router.put('/assign-faculty', protect, authorizeRoles('Admin'), assignFaculty);
 router.put('/update-hours/:studentId', protect, authorizeSubRoles('Timekeeper'), updateRenderHours);
