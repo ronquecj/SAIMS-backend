@@ -19,7 +19,7 @@ const createUserByAdmin = async (req, res) => {
       email,
       password,
       role,
-      subRole: role === 'Student Assistant' ? subRole : 'None',
+      subRole: role === 'EOSA' ? subRole : 'None',  
       office: office || 'Unassigned', 
     });
 

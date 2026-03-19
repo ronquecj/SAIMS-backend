@@ -6,9 +6,9 @@ const getAnnouncements = async (req, res) => {
      
     if (req.user.role === 'Faculty') {
         filter = { audience: { $in: ['All', 'Faculty'] } };
-    } else if (req.user.role === 'EOSA') {
-        filter = { audience: { $in: ['All', 'EOSA'] } };
-    } else if (req.user.role === 'Student Assistant') {
+    } else if (req.user.role === 'EOSA') { 
+        filter = { audience: { $in:['All', 'EOSA'] } };
+    } else if (req.user.role === 'Student Assistant') { 
         filter = { audience: { $in: ['All', 'Student Assistants'] } };
     } 
 
@@ -19,7 +19,7 @@ const getAnnouncements = async (req, res) => {
   }
 };
  
-const createAnnouncement = async (req, res) => { 
+const createAnnouncement = async (req, res) => {
   const { title, content, audience, documentUrl } = req.body;
 
   if (!title || !content) {
@@ -30,8 +30,8 @@ const createAnnouncement = async (req, res) => {
     const announcement = new Announcement({
       title,
       content,
-      audience: audience || 'All',           
-      documentUrl: documentUrl || '',      
+      audience: audience || 'All',
+      documentUrl: documentUrl || '',
       author: req.user._id, 
       authorName: req.user.fullName,  
     });
@@ -59,7 +59,7 @@ const updateAnnouncement = async (req, res) => {
       if (!isAuthorized) {
         return res.status(403).json({ message: 'Not authorized to update this announcement' });
       }
- 
+
       announcement.title = title || announcement.title;
       announcement.content = content || announcement.content;
       if (audience) announcement.audience = audience;

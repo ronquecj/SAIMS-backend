@@ -1,8 +1,8 @@
 const User = require('../models/User');
  
 const getStudentAssistants = async (req, res) => {
-  try {
-    const students = await User.find({ role: 'Student Assistant' }).select('-password').populate('assignedFaculty', 'fullName');
+  try { 
+    const students = await User.find({ role: { $in: ['Student Assistant', 'EOSA'] } }).select('-password').populate('assignedFaculty', 'fullName');
     res.json(students);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
@@ -11,7 +11,7 @@ const getStudentAssistants = async (req, res) => {
  
 const getFacultyAndAdmin = async (req, res) => {
   try {
-    const users = await User.find({ role: { $in: ['Faculty', 'Admin'] } }).select('-password');
+    const users = await User.find({ role: { $in:['Faculty', 'Admin'] } }).select('-password');
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
@@ -48,7 +48,7 @@ const updateRenderHours = async (req, res) => {
   try {
     const student = await User.findById(studentId).select('-password');
     
-    if (!student || student.role !== 'Student Assistant') {
+    if (!student || !['Student Assistant', 'EOSA'].includes(student.role)) {
       return res.status(404).json({ message: 'Student Assistant not found.' });
     }
      

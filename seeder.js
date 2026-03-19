@@ -39,15 +39,15 @@ const importData = async () => {
         
       { fullName: 'Dr. Jane Smith', email: 'jane.smith@saims.com', password: await hashPw('password123'), role: 'Faculty', subRole: 'None', office: 'Dean\'s Office', department: 'CCS', position: 'Dean' },
        
-      { fullName: 'Juan Dela Cruz', email: 'juan.cruz@saims.com', password: await hashPw('password123'), role: 'Student Assistant', subRole: 'President', office: 'President\'s Office', renderHours: 45, leaveBalance: 25 },
-      { fullName: 'Maria Clara', email: 'maria.clara@saims.com', password: await hashPw('password123'), role: 'Student Assistant', subRole: 'Secretary', office: 'Registrar', renderHours: 42, leaveBalance: 25 },
-      { fullName: 'Emilio Aguinaldo', email: 'emilio.aguinaldo@saims.com', password: await hashPw('password123'), role: 'Student Assistant', subRole: 'Treasurer', office: 'Accounting Office', renderHours: 50, leaveBalance: 25 },
-      { fullName: 'Andres Bonifacio', email: 'andres.bonifacio@saims.com', password: await hashPw('password123'), role: 'Student Assistant', subRole: 'Timekeeper', office: 'HR Office', renderHours: 40, leaveBalance: 25 },
+      { fullName: 'Juan Dela Cruz', email: 'juan.cruz@saims.com', password: await hashPw('password123'), role: 'EOSA', subRole: 'President', office: 'President\'s Office', renderHours: 45, leaveBalance: 25 },
+      { fullName: 'Maria Clara', email: 'maria.clara@saims.com', password: await hashPw('password123'), role: 'EOSA', subRole: 'Secretary', office: 'Registrar', renderHours: 42, leaveBalance: 25 },
+      { fullName: 'Emilio Aguinaldo', email: 'emilio.aguinaldo@saims.com', password: await hashPw('password123'), role: 'EOSA', subRole: 'Treasurer', office: 'Accounting Office', renderHours: 50, leaveBalance: 25 },
+      { fullName: 'Andres Bonifacio', email: 'andres.bonifacio@saims.com', password: await hashPw('password123'), role: 'EOSA', subRole: 'Timekeeper', office: 'HR Office', renderHours: 40, leaveBalance: 25 },
        
       { fullName: 'Jose Rizal', email: 'jose.rizal@saims.com', password: await hashPw('password123'), role: 'Student Assistant', subRole: 'None', office: 'Library', renderHours: 35, leaveBalance: 25 },
       { fullName: 'Gabriela Silang', email: 'gabriela.silang@saims.com', password: await hashPw('password123'), role: 'Student Assistant', subRole: 'None', office: 'IT Department', renderHours: 60, leaveBalance: 25 },
-       
-      { fullName: 'Apolinario Mabini', email: 'apolinario@saims.com', password: await hashPw('password123'), role: 'EOSA', subRole: 'None', office: 'Adviser Office' },
+      { fullName: 'Apolinario Mabini', email: 'apolinario@saims.com', password: await hashPw('password123'), role: 'Student Assistant', subRole: 'None', office: 'Adviser Office' },
+      
       { 
           fullName: 'Juan Inactive', 
           email: 'inactive@saims.com', 

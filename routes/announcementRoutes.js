@@ -6,16 +6,16 @@ const {
   updateAnnouncement,
   deleteAnnouncement,
 } = require('../controllers/announcementController');
-const { protect, authorizeRoles, authorizeSubRoles } = require('../middleware/authMiddleware');
+const { protect, authorizeRoles } = require('../middleware/authMiddleware');
  
 router.get('/', protect, getAnnouncements);
  
 router.post(
   '/',
   protect,
-  authorizeRoles('Admin', 'Faculty', 'Student Assistant'),
+  authorizeRoles('Admin', 'Faculty', 'EOSA'),
   (req, res, next) => { 
-    if (req.user.role === 'Student Assistant' && !['President', 'Secretary'].includes(req.user.subRole)) {
+    if (req.user.role === 'EOSA' && !['President', 'Secretary'].includes(req.user.subRole)) {
       return res.status(403).json({ message: 'Only President or Secretary SA can create announcements' });
     }
     next();
@@ -26,9 +26,9 @@ router.post(
 router.put(
   '/:id',
   protect,
-  authorizeRoles('Admin', 'Faculty', 'Student Assistant'),
+  authorizeRoles('Admin', 'Faculty', 'EOSA'),
   (req, res, next) => {  
-    if (req.user.role === 'Student Assistant' && !['President', 'Secretary'].includes(req.user.subRole)) {
+    if (req.user.role === 'EOSA' && !['President', 'Secretary'].includes(req.user.subRole)) {
       return res.status(403).json({ message: 'Only President or Secretary SA can update announcements' });
     }
     next();
@@ -39,15 +39,14 @@ router.put(
 router.delete(
   '/:id',
   protect,
-  authorizeRoles('Admin', 'Faculty', 'Student Assistant'),
+  authorizeRoles('Admin', 'Faculty', 'EOSA'),
   (req, res, next) => {  
-    if (req.user.role === 'Student Assistant' && !['President', 'Secretary'].includes(req.user.subRole)) {
+    if (req.user.role === 'EOSA' && !['President', 'Secretary'].includes(req.user.subRole)) {
       return res.status(403).json({ message: 'Only President or Secretary SA can delete announcements' });
     }
     next();
   },
   deleteAnnouncement
 );
-
 
 module.exports = router;

@@ -34,9 +34,9 @@ const authorizeRoles = (...roles) => {
 };
  
 const authorizeSubRoles = (...subRoles) => {
-    return (req, res, next) => {
-        if (req.user.role !== 'Student Assistant' || !subRoles.includes(req.user.subRole)) {
-            return res.status(403).json({ message: `Student Assistant sub-role ${req.user.subRole} is not authorized to access this resource.` });
+    return (req, res, next) => { 
+        if (req.user.role !== 'EOSA' || !subRoles.includes(req.user.subRole)) {
+            return res.status(403).json({ message: `EOSA sub-role ${req.user.subRole} is not authorized to access this resource.` });
         }
         next();
     };
