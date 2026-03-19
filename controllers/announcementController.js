@@ -1,13 +1,13 @@
 const Announcement = require('../models/Announcement');
-const User = require('../models/User');  
- 
+
 const getAnnouncements = async (req, res) => {
   try {
     let filter = {};
+     
     if (req.user.role === 'Faculty') {
         filter = { audience: { $in: ['All', 'Faculty'] } };
     } else if (req.user.role === 'EOSA') {
-        filter = { audience: { $in:['All', 'EOSA'] } };
+        filter = { audience: { $in: ['All', 'EOSA'] } };
     } else if (req.user.role === 'Student Assistant') {
         filter = { audience: { $in: ['All', 'Student Assistants'] } };
     } 
@@ -19,8 +19,8 @@ const getAnnouncements = async (req, res) => {
   }
 };
  
-const createAnnouncement = async (req, res) => {
-  const { title, content } = req.body;
+const createAnnouncement = async (req, res) => { 
+  const { title, content, audience, documentUrl } = req.body;
 
   if (!title || !content) {
     return res.status(400).json({ message: 'Please enter all fields' });
@@ -30,6 +30,8 @@ const createAnnouncement = async (req, res) => {
     const announcement = new Announcement({
       title,
       content,
+      audience: audience || 'All',           
+      documentUrl: documentUrl || '',      
       author: req.user._id, 
       authorName: req.user.fullName,  
     });
@@ -42,7 +44,7 @@ const createAnnouncement = async (req, res) => {
 };
  
 const updateAnnouncement = async (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, audience, documentUrl } = req.body;
 
   try {
     const announcement = await Announcement.findById(req.params.id);
@@ -57,9 +59,11 @@ const updateAnnouncement = async (req, res) => {
       if (!isAuthorized) {
         return res.status(403).json({ message: 'Not authorized to update this announcement' });
       }
-
+ 
       announcement.title = title || announcement.title;
       announcement.content = content || announcement.content;
+      if (audience) announcement.audience = audience;
+      if (documentUrl !== undefined) announcement.documentUrl = documentUrl;
       announcement.authorName = req.user.fullName; 
 
       const updatedAnnouncement = await announcement.save();
